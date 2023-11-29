@@ -5,8 +5,8 @@ import java.util.*;
 public class Game {
     static Scanner sc = new Scanner(System.in);
     public static final int ROUNDS = 7;
+    public static int diceLeft;
     public static ArrayList<Integer> dices = new ArrayList<>();
-
     public static int throwChoice = 1;
     public static void main(String[] args) {
         printTable();
@@ -45,8 +45,8 @@ public class Game {
     public static void checkChoice(){
         String choice = sc.nextLine().trim();
         switch (choice) {
-            case "1" -> playGameChoice();
-            case "0" -> exitGameChoice();
+            case "1" : playGameChoice();
+            case "0" : exitGameChoice();
         }
     }
     public static void playGameChoice(){
@@ -70,14 +70,14 @@ public class Game {
         }
     }
     public static void playerThrowDice(){
-        int maxDiceCount = 6;
-
+        int maxDiceCount = 5;
         String choice = "";
         System.out.print("Throw: ");
-        for(int i = 1; i <= maxDiceCount;i++){
-            dices.add(getRandomDice());
+        for(int i = 0; i < maxDiceCount;i++){
+            int randomN = getRandomDice();
+            dices.add(randomN);
         }
-        for(int i = 1; i < maxDiceCount; i++){
+        for(int i = 0; i <= maxDiceCount-1; i++){
             System.out.print("[");
             System.out.print(dices.get(i));
             System.out.print("]");
@@ -91,16 +91,32 @@ public class Game {
         System.out.println("Select category to play.");
         System.out.println("Ones (1) Twos(2) Threes(3) Fours(4) Fives(5) Sixes(6) or Sequences(7)");
         String categoryChoice = sc.next().trim();
-        String correspondingStr = switch (categoryChoice) {
-            case "1" -> "One";
-            case "2" -> "Twos";
-            case "3" -> "Threes";
-            case "4" -> "Fours";
-            case "5" -> "Fives";
-            case "6" -> "Sixes";
-            case "7" -> "Sequences";
-            default -> "";
+        String correspondingStr = "";
+        switch (categoryChoice) {
+            case "1" :
+                correspondingStr = "Ones";
+                break;
+            case "2" :
+                correspondingStr = "Twos";
+                break;
+            case "3" :
+                correspondingStr = "Threes";
+                break;
+            case "4" :
+                correspondingStr = "Fours";
+                break;
+            case "5" :
+                correspondingStr = "Fives";
+                break;
+            case "6" :
+                correspondingStr = "Sixes";
+                break;
+            case "7" :
+                correspondingStr = "Sequences";
+                break;
+
         };
+
         if(categoryChoice.equalsIgnoreCase("1")){
             System.out.println(correspondingStr + " has been selected");
         }
@@ -122,13 +138,56 @@ public class Game {
         else if(categoryChoice.equalsIgnoreCase("7")){
             System.out.println(correspondingStr + " has been selected");
         }
+        int asideDicesCount = countCertainDice(Integer.parseInt(categoryChoice));
+        System.out.println("That throw had " + asideDicesCount + " dice with value " + categoryChoice);
+        System.out.println("Setting aside "  + asideDicesCount +  " dice: " );
+
+        printRepeatedDices(Integer.parseInt(categoryChoice));
+        diceLeft = dices.size() - asideDicesCount;
+        System.out.println("\nNext throw of this turn, Player1 to throw " + diceLeft + " dice");
+        System.out.println("Throw " + diceLeft + " dice" + ", enter 't' to throw or 'f' to forfeit > ");
+        choice = sc.next();
+        if(dices.size() > diceLeft){
+            List<Integer> sublist  = dices.subList(0, 0);
+            dices = new ArrayList<>(sublist);
+        }
+        for(int i = 0; i < diceLeft;i++){
+            int randomN = getRandomDice();
+            dices.add(randomN);
+        }
+        System.out.println("Throw: " + dices);
         System.out.println("That throw had " + countCertainDice(Integer.parseInt(categoryChoice)) + " dice with value " + categoryChoice);
-        System.out.println("Setting aside " + countCertainDice(Integer.parseInt(categoryChoice)) + " dice: ");
+        System.out.println("Setting aside "  + countCertainDice(Integer.parseInt(categoryChoice)) +  " dice: " );
+        printRepeatedDices(Integer.parseInt(categoryChoice));
+
+        System.out.println("updated dices list " + dices);
+    }
+
+    public static void removeDices(int diceNum){
+       int i = 0;
+       while(i < dices.size()){
+           if(dices.get(i) == diceNum){
+               dices.remove(i);
+
+           }else{
+               i++;
+           }
+       }
+    }
+    public static void printRepeatedDices(int num){
+        for(int i = 0; i< dices.size();i++){
+            if(dices.get(i) == num){
+                System.out.print("[" + dices.get(i) + "]");
+            }else{
+                continue;
+            }
+        }
     }
 
     public static int countCertainDice(int categoryNumber){
         return Collections.frequency(dices,categoryNumber);
     }
+
 
     public static int getRandomDice(){
         int max = 6;
@@ -143,4 +202,5 @@ public class Game {
     public static void showTurnMessage(){
 
     }
+
 }
