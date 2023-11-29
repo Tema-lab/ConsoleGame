@@ -5,6 +5,7 @@ import java.util.*;
 public class Game {
     static Scanner sc = new Scanner(System.in);
     public static final int ROUNDS = 7;
+    public static ArrayList<Integer> selectedDices = new ArrayList<>();
     public static int diceLeft;
     public static ArrayList<Integer> dices = new ArrayList<>();
     public static int throwChoice = 1;
@@ -151,24 +152,27 @@ public class Game {
             List<Integer> sublist  = dices.subList(0, 0);
             dices = new ArrayList<>(sublist);
         }
-        for(int i = 0; i < diceLeft;i++){
+        for(int i = 0; i <= diceLeft -1;i++){
             int randomN = getRandomDice();
             dices.add(randomN);
         }
         System.out.println("Throw: " + dices);
         System.out.println("That throw had " + countCertainDice(Integer.parseInt(categoryChoice)) + " dice with value " + categoryChoice);
         System.out.println("Setting aside "  + countCertainDice(Integer.parseInt(categoryChoice)) +  " dice: " );
-        printRepeatedDices(Integer.parseInt(categoryChoice));
+        if(countCertainDice(Integer.parseInt(categoryChoice)) == 0){
+            System.out.println(selectedDices);
+        }else{
+            printRepeatedDices(Integer.parseInt(categoryChoice));
+            
+        }
 
-        System.out.println("updated dices list " + dices);
+
     }
-
     public static void removeDices(int diceNum){
        int i = 0;
        while(i < dices.size()){
            if(dices.get(i) == diceNum){
                dices.remove(i);
-
            }else{
                i++;
            }
@@ -177,6 +181,7 @@ public class Game {
     public static void printRepeatedDices(int num){
         for(int i = 0; i< dices.size();i++){
             if(dices.get(i) == num){
+                selectedDices.add(dices.get(i));
                 System.out.print("[" + dices.get(i) + "]");
             }else{
                 continue;
