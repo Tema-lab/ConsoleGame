@@ -9,9 +9,11 @@ public class Game {
     public static final int ROUNDS = 14;
     public static ArrayList<Integer> dices = new ArrayList<>();
     public static ArrayList<Integer> selectedDices = new ArrayList<>();
+    public static ArrayList<Integer> totalSelectedDices = new ArrayList<>();
     public static int totalAsideDices = 0;
     public static int diceLeft;
     public static int THROWS = 3;
+    public static  String correspondingStr;
 
     public static int roundNumber = 1;
     public static String categoryChoice;
@@ -102,7 +104,7 @@ public class Game {
         System.out.println("Ones (1) Twos(2) Threes(3) Fours(4) Fives(5) Sixes(6) or Sequences(7)");
 
         categoryChoice = sc.next().trim();
-        String correspondingStr = "";
+        correspondingStr = "";
         switch (categoryChoice) {
             case "1":
                 correspondingStr = "Ones";
@@ -125,7 +127,6 @@ public class Game {
             case "7":
                 correspondingStr = "Sequences";
                 break;
-
         }
 
         if (categoryChoice.equalsIgnoreCase("1")) {
@@ -149,7 +150,12 @@ public class Game {
             System.out.println("Setting aside " + asideDicesCount + " dice: ");
             totalAsideDices += asideDicesCount;
         }
-        printRepeatedDices(Integer.parseInt(categoryChoice));
+
+        for(int i = 0; i < totalAsideDices; i++){
+            System.out.print("[" + categoryChoice + "]");
+        }
+        addRepeatedDices(Integer.parseInt(categoryChoice));
+
         diceLeft = dices.size() - asideDicesCount;
         System.out.println("\nNext throw of this turn, " + player + " to throw " + diceLeft + " dice");
         System.out.println("Throw " + diceLeft + " dice" + ", enter 't' to throw or 'f' to forfeit > ");
@@ -162,18 +168,18 @@ public class Game {
             int randomN = getRandomDice();
             dices.add(randomN);
         }
+
         asideDicesCount = countCertainDice(Integer.parseInt(categoryChoice));
-        if (asideDicesCount >= 0) {
-            totalAsideDices += asideDicesCount;
-            System.out.println("Throw: " + dices);
-            System.out.println("That throw had " + countCertainDice(Integer.parseInt(categoryChoice)) + " dice with value " + categoryChoice);
-            System.out.println("Setting aside " + totalAsideDices + " dice: ");
+
+        totalAsideDices += asideDicesCount;
+        System.out.println("Throw: " + dices);
+        System.out.println("That throw had " + countCertainDice(Integer.parseInt(categoryChoice)) + " dice with value " + categoryChoice);
+        System.out.println("Setting aside " + totalAsideDices + " dice: ");
+
+        for(int i = 0; i < totalAsideDices; i++){
+            System.out.print("[" + categoryChoice + "]");
         }
-        if (countCertainDice(Integer.parseInt(categoryChoice)) == 0) {
-            System.out.println(selectedDices);
-        } else {
-            printRepeatedDices(Integer.parseInt(categoryChoice));
-        }
+        addRepeatedDices(Integer.parseInt(categoryChoice));
         diceLeft = dices.size() - asideDicesCount;
         System.out.println("\nNext throw of this turn, " + player + " to throw " + diceLeft + " dice");
         System.out.println("Throw " + diceLeft + " dice, enter 't' to throw or 'f' to forfeit > ");
@@ -206,10 +212,14 @@ public class Game {
                         .mapToInt(e -> e)
                         .sum();
                 currentScore = sum;
-
                 System.out.println("Throw: " + dices);
                 System.out.println("That throw had " + asideDicesCount + " dice with value " + categoryChoice + ".");
                 System.out.println("Setting aside " + totalAsideDices + " dice: ");
+                addRepeatedDices(Integer.parseInt(categoryChoice));
+
+                for(int i = 0; i < totalAsideDices; i++){
+                    System.out.print("[" + categoryChoice + "]");
+                }
                 System.out.println(player + " made " + totalAsideDices + " with value " + categoryChoice + " and scores " + "for that round " + sum);
                 switch (GameManager.playerTurn){
                     case "Player1":
@@ -270,11 +280,13 @@ public class Game {
             }
         }
     }
-    public static void printRepeatedDices(int num){
+    public static void printAllRepeatedDiced(){
+
+    }
+    public static void addRepeatedDices(int num){
         for(int i = 0; i< dices.size();i++){
             if(dices.get(i) == num){
                 selectedDices.add(dices.get(i));
-                System.out.print("[" + dices.get(i) + "]");
             }else{
                 continue;
             }
