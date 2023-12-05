@@ -6,7 +6,7 @@ import game.GameTable;
 
 public class Game {
     static Scanner sc = new Scanner(System.in);
-    public static final int ROUNDS = 14;
+    public static final int ROUNDS = 7;
     public static int maxDiceCount = 5;
     public static ArrayList<Integer> dices = new ArrayList<>();
     public static ArrayList<Integer> selectedDices = new ArrayList<>();
@@ -19,10 +19,19 @@ public class Game {
     public static String categoryChoice;
     public static int currentScore = 0;
     public static int asideDicesCount = 0;
+    public static int[] seq1 = {1,2,3,4,5};
+    public static int[] seq2 = {2,3,4,5,6};
+    public static boolean flag = true;
+    public static  boolean isGame = true;
+    public static  Map<String, Set<String>> playerCategories = new HashMap<>();
     public static void main(String[] args) {
         printTable();
         showWelcomeMessage();
+        if(roundNumber == 8){
+            System.exit(0);
+        }
     }
+
 
     public static void printTable(){
         System.out.printf("--------------------------------------%n");
@@ -82,6 +91,16 @@ public class Game {
             roundNumber++;
         }
     }
+    public static boolean categoryCheck(String player, String category){
+        Set<String> categories = playerCategories.computeIfAbsent(player, k -> new HashSet<>());
+        if(categories.contains(category)){
+            System.out.println(dices);
+            System.out.println(player + " has already played in the category " + category);
+            return false;
+        }
+        categories.add(category);
+        return true;
+    }
 
     public static void playerThrowDice(String player) {
         String choice = "";
@@ -102,10 +121,27 @@ public class Game {
             choice = sc.next();
         }
         if(choice.equalsIgnoreCase("s")){
-            System.out.println("Select category to play.");
-            System.out.println("Ones (1) Twos(2) Threes(3) Fours(4) Fives(5) Sixes(6) or Sequences(7)");
-
-            categoryChoice = sc.next().trim();
+            int cat;
+            do{
+                System.out.println("Select category to play.");
+                System.out.println("Ones (1) Twos(2) Threes(3) Fours(4) Fives(5) Sixes(6) or Sequences(7)");
+                while(!sc.hasNextInt()){
+                    System.out.println("Invalid input. Please enter a number (1-7): ");
+                    sc.next();
+                }
+                cat = sc.nextInt();
+                if(cat < 1 || cat > 7){
+                    System.out.println("Invalid input. Please enter a number (1-7): ");
+                }
+                categoryChoice = String.valueOf(cat);
+            }
+            while (Integer.parseInt(categoryChoice) < 1 || Integer.parseInt(categoryChoice) > 7);
+            if(flag){
+                while(!categoryCheck(player, categoryChoice) || !dices.contains(Integer.parseInt(categoryChoice))){
+                    System.out.println("Please select different category");
+                    categoryChoice = sc.next().trim();
+                }
+            }
             correspondingStr = "";
             switch (categoryChoice) {
                 case "1":
@@ -147,7 +183,7 @@ public class Game {
                 System.out.println(correspondingStr + " has been selected");
             }
             asideDicesCount = countCertainDice(Integer.parseInt(categoryChoice));
-            if (asideDicesCount >= 0) {
+            if (asideDicesCount > 0) {
                 System.out.println("That throw had " + asideDicesCount + " dice with value " + categoryChoice);
                 System.out.println("Setting aside " + asideDicesCount + " dice: ");
                 totalAsideDices += asideDicesCount;
@@ -160,7 +196,7 @@ public class Game {
 
             diceLeft = dices.size() - asideDicesCount;
             System.out.println("\nNext throw of this turn, " + player + " to throw " + diceLeft + " dice");
-            System.out.println("Throw " + diceLeft + " dice" + ", enter 't' to throw or 'f' to forfeit > ");
+            System.out.println("Throw " + diceLeft + " dice" + ", enter 't' to throw > ");
             choice = sc.next();
             if (dices.size() > diceLeft) {
                 List<Integer> sublist = dices.subList(0, 0);
@@ -310,16 +346,33 @@ public class Game {
                 }
                 System.out.println("\n1 throws remaining for this turn");
                 System.out.println("\nEnter 's' to select category (number on die/dice) or 'd' to defer > ");
-                choice = sc.next();
-                while (!choice.equals("s") && !choice.equals("d")) {
+                choice = sc.next().trim();
+                while (!choice.equalsIgnoreCase("s") && !choice.equalsIgnoreCase("d")) {
                     System.out.println("Invalid input. PLease input 's' or 'd'");
-                    choice = sc.next();
+                    choice = sc.next().trim();
                 }
                 if(choice.equalsIgnoreCase("s")){
-                    System.out.println("Select category to play.");
-                    System.out.println("Ones (1) Twos(2) Threes(3) Fours(4) Fives(5) Sixes(6) or Sequences(7)");
-
-                    categoryChoice = sc.next().trim();
+                    int cat;
+                    do{
+                        System.out.println("Select category to play.");
+                        System.out.println("Ones (1) Twos(2) Threes(3) Fours(4) Fives(5) Sixes(6) or Sequences(7)");
+                        while(!sc.hasNextInt()){
+                            System.out.println("Invalid input. Please enter a number (1-7): ");
+                            sc.next();
+                        }
+                        cat = sc.nextInt();
+                        if(cat < 1 || cat > 7){
+                            System.out.println("Invalid input. Please enter a number (1-7): ");
+                        }
+                        categoryChoice = String.valueOf(cat);
+                    }
+                    while (Integer.parseInt(categoryChoice) < 1 || Integer.parseInt(categoryChoice) > 7);
+                    if(flag){
+                        while(!categoryCheck(player, categoryChoice) || !dices.contains(Integer.parseInt(categoryChoice))){
+                            System.out.println("Please select different category");
+                            categoryChoice = sc.next().trim();
+                        }
+                    }
                     correspondingStr = "";
                     switch (categoryChoice) {
                         case "1":
@@ -491,6 +544,12 @@ public class Game {
                         System.out.println("Ones (1) Twos(2) Threes(3) Fours(4) Fives(5) Sixes(6) or Sequences(7)");
 
                         categoryChoice = sc.next().trim();
+                        if(flag){
+                            while(!categoryCheck(player, categoryChoice) || !dices.contains(Integer.parseInt(categoryChoice))){
+                                System.out.println("Please select different category");
+                                categoryChoice = sc.next().trim();
+                            }
+                        }
                         correspondingStr = "";
 
                         switch (categoryChoice) {
@@ -608,10 +667,6 @@ public class Game {
                 }
             }
         }
-    }
-
-    public static void printAllRepeatedDiced(){
-
     }
     public static void addRepeatedDices(int num){
         for(int i = 0; i< dices.size();i++){
