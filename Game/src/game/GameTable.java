@@ -26,7 +26,7 @@ public class GameTable {
     }
     public static void buildTable(){
         tableBuilder.setLength(0);
-
+        tableBuilder.append(String.format("--------------------------------------%n"));
         tableBuilder.append(String.format("| %-12s | %-8s | %-8s |%n", "Category", "Player1", "Player2"));
         tableBuilder.append(String.format("--------------------------------------%n"));
 

@@ -8,6 +8,5 @@ public class GameManager {
         }else if(turn.equals("Player2")){
             playerTurn = "Player1";
         }
-
     }
 }
