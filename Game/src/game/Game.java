@@ -31,8 +31,6 @@ public class Game {
             System.exit(0);
         }
     }
-
-
     public static void printTable(){
         System.out.printf("--------------------------------------%n");
         System.out.printf("  Java Dice Console Game  %n");
@@ -75,7 +73,6 @@ public class Game {
         choice = "";
         GameManager.changeTurn(GameManager.playerTurn);
     }
-
     public static void resetLists(){
         dices.clear();
         selectedDices.clear();
@@ -94,7 +91,6 @@ public class Game {
     public static boolean categoryCheck(String player, String category){
         Set<String> categories = playerCategories.computeIfAbsent(player, k -> new HashSet<>());
         if(categories.contains(category)){
-            System.out.println(dices);
             System.out.println(player + " has already played in the category " + category);
             return false;
         }
@@ -121,21 +117,7 @@ public class Game {
             choice = sc.next();
         }
         if(choice.equalsIgnoreCase("s")){
-            int cat;
-            do{
-                System.out.println("Select category to play.");
-                System.out.println("Ones (1) Twos(2) Threes(3) Fours(4) Fives(5) Sixes(6) or Sequences(7)");
-                while(!sc.hasNextInt()){
-                    System.out.println("Invalid input. Please enter a number (1-7): ");
-                    sc.next();
-                }
-                cat = sc.nextInt();
-                if(cat < 1 || cat > 7){
-                    System.out.println("Invalid input. Please enter a number (1-7): ");
-                }
-                categoryChoice = String.valueOf(cat);
-            }
-            while (Integer.parseInt(categoryChoice) < 1 || Integer.parseInt(categoryChoice) > 7);
+            categorySelectionCheck();
             if(flag){
                 while(!categoryCheck(player, categoryChoice) || !dices.contains(Integer.parseInt(categoryChoice))){
                     System.out.println("Please select different category");
@@ -143,45 +125,10 @@ public class Game {
                 }
             }
             correspondingStr = "";
-            switch (categoryChoice) {
-                case "1":
-                    correspondingStr = "Ones";
-                    break;
-                case "2":
-                    correspondingStr = "Twos";
-                    break;
-                case "3":
-                    correspondingStr = "Threes";
-                    break;
-                case "4":
-                    correspondingStr = "Fours";
-                    break;
-                case "5":
-                    correspondingStr = "Fives";
-                    break;
-                case "6":
-                    correspondingStr = "Sixes";
-                    break;
-                case "7":
-                    correspondingStr = "Sequences";
-                    break;
-            }
 
-            if (categoryChoice.equalsIgnoreCase("1")) {
-                System.out.println(correspondingStr + " has been selected");
-            } else if (categoryChoice.equalsIgnoreCase("2")) {
-                System.out.println(correspondingStr + " has been selected");
-            } else if (categoryChoice.equalsIgnoreCase("3")) {
-                System.out.println(correspondingStr + " has been selected");
-            } else if (categoryChoice.equalsIgnoreCase("4")) {
-                System.out.println(correspondingStr + " has been selected");
-            } else if (categoryChoice.equalsIgnoreCase("5")) {
-                System.out.println(correspondingStr + " has been selected");
-            } else if (categoryChoice.equalsIgnoreCase("6")) {
-                System.out.println(correspondingStr + " has been selected");
-            } else if (categoryChoice.equalsIgnoreCase("7")) {
-                System.out.println(correspondingStr + " has been selected");
-            }
+            switchCategories();
+            printChosenCategory();
+
             asideDicesCount = countCertainDice(Integer.parseInt(categoryChoice));
             if (asideDicesCount > 0) {
                 System.out.println("That throw had " + asideDicesCount + " dice with value " + categoryChoice);
@@ -192,9 +139,11 @@ public class Game {
             for(int i = 0; i < totalAsideDices; i++){
                 System.out.print("[" + categoryChoice + "]");
             }
+
             addRepeatedDices(Integer.parseInt(categoryChoice));
 
             diceLeft = dices.size() - asideDicesCount;
+
             System.out.println("\nNext throw of this turn, " + player + " to throw " + diceLeft + " dice");
             System.out.println("Throw " + diceLeft + " dice" + ", enter 't' to throw > ");
             choice = sc.next();
@@ -217,6 +166,7 @@ public class Game {
             for(int i = 0; i < totalAsideDices; i++){
                 System.out.print("[" + categoryChoice + "]");
             }
+
             addRepeatedDices(Integer.parseInt(categoryChoice));
             diceLeft = dices.size() - asideDicesCount;
             System.out.println("\nNext throw of this turn, " + player + " to throw " + diceLeft + " dice");
@@ -258,62 +208,8 @@ public class Game {
                     for(int i = 0; i < totalAsideDices; i++){
                         System.out.print("[" + categoryChoice + "]");
                     }
-                    System.out.println(player + " made " + totalAsideDices + " with value " + categoryChoice + " and scores " + "for that round " + sum);
-                    switch (GameManager.playerTurn){
-                        case "Player1":
-                            GameTable.pOneTotal += sum;
-                            switch (categoryChoice){
-                                case "1":
-                                    GameTable.pOneOnes = sum;
-                                    break;
-                                case "2":
-                                    GameTable.pOneTwos = sum;
-                                    break;
-                                case "3":
-                                    GameTable.pOneThrees = sum;
-                                    break;
-                                case "4":
-                                    GameTable.pOneFours = sum;
-                                    break;
-                                case "5":
-                                    GameTable.pOneFives = sum;
-                                    break;
-                                case "6":
-                                    GameTable.pOneSixes = sum;
-                                    break;
-                                case "Sequences":
-                                    GameTable.pOneSequences = sum;
-                                    break;
-                            }
-                            break;
-                        case "Player2":
-                            GameTable.pTwoTotal += sum;
-                            switch (categoryChoice){
-                                case "1":
-                                    GameTable.pTwoOnes = sum;
-                                    break;
-                                case "2":
-                                    GameTable.pTwoTwos = sum;
-                                    break;
-                                case "3":
-                                    GameTable.pTwoThrees = sum;
-                                    break;
-                                case "4":
-                                    GameTable.pTwoFours = sum;
-                                    break;
-                                case "5":
-                                    GameTable.pTwoFives = sum;
-                                    break;
-                                case "6":
-                                    GameTable.pTwoSixes = sum;
-                                    break;
-                                case "Sequences":
-                                    GameTable.pTwoSequences = sum;
-                                    break;
-                            }
-                            break;
-
-                    }
+                    System.out.println("\n" + player + " made " + totalAsideDices + " with value " + categoryChoice + " and scores " + "for that round " + sum);
+                    updateTableScore(sum);
                     GameTable.buildTable();
                 }
             }
@@ -352,21 +248,7 @@ public class Game {
                     choice = sc.next().trim();
                 }
                 if(choice.equalsIgnoreCase("s")){
-                    int cat;
-                    do{
-                        System.out.println("Select category to play.");
-                        System.out.println("Ones (1) Twos(2) Threes(3) Fours(4) Fives(5) Sixes(6) or Sequences(7)");
-                        while(!sc.hasNextInt()){
-                            System.out.println("Invalid input. Please enter a number (1-7): ");
-                            sc.next();
-                        }
-                        cat = sc.nextInt();
-                        if(cat < 1 || cat > 7){
-                            System.out.println("Invalid input. Please enter a number (1-7): ");
-                        }
-                        categoryChoice = String.valueOf(cat);
-                    }
-                    while (Integer.parseInt(categoryChoice) < 1 || Integer.parseInt(categoryChoice) > 7);
+                    categorySelectionCheck();
                     if(flag){
                         while(!categoryCheck(player, categoryChoice) || !dices.contains(Integer.parseInt(categoryChoice))){
                             System.out.println("Please select different category");
@@ -374,45 +256,9 @@ public class Game {
                         }
                     }
                     correspondingStr = "";
-                    switch (categoryChoice) {
-                        case "1":
-                            correspondingStr = "Ones";
-                            break;
-                        case "2":
-                            correspondingStr = "Twos";
-                            break;
-                        case "3":
-                            correspondingStr = "Threes";
-                            break;
-                        case "4":
-                            correspondingStr = "Fours";
-                            break;
-                        case "5":
-                            correspondingStr = "Fives";
-                            break;
-                        case "6":
-                            correspondingStr = "Sixes";
-                            break;
-                        case "7":
-                            correspondingStr = "Sequences";
-                            break;
-                    }
+                    switchCategories();
 
-                    if (categoryChoice.equalsIgnoreCase("1")) {
-                        System.out.println(correspondingStr + " has been selected");
-                    } else if (categoryChoice.equalsIgnoreCase("2")) {
-                        System.out.println(correspondingStr + " has been selected");
-                    } else if (categoryChoice.equalsIgnoreCase("3")) {
-                        System.out.println(correspondingStr + " has been selected");
-                    } else if (categoryChoice.equalsIgnoreCase("4")) {
-                        System.out.println(correspondingStr + " has been selected");
-                    } else if (categoryChoice.equalsIgnoreCase("5")) {
-                        System.out.println(correspondingStr + " has been selected");
-                    } else if (categoryChoice.equalsIgnoreCase("6")) {
-                        System.out.println(correspondingStr + " has been selected");
-                    } else if (categoryChoice.equalsIgnoreCase("7")) {
-                        System.out.println(correspondingStr + " has been selected");
-                    }
+                    printChosenCategory();
                     asideDicesCount = countCertainDice(Integer.parseInt(categoryChoice));
                     if (asideDicesCount >= 0) {
                         System.out.println("That throw had " + asideDicesCount + " dice with value " + categoryChoice);
@@ -456,61 +302,8 @@ public class Game {
                     int sum = selectedDices.stream()
                             .mapToInt(e -> e)
                             .sum();
-                    System.out.println(player + " made " + totalAsideDices + " with value " + categoryChoice + " and scores " + "for that round " + sum);
-                    switch (GameManager.playerTurn){
-                        case "Player1":
-                            GameTable.pOneTotal += sum;
-                            switch (categoryChoice){
-                                case "1":
-                                    GameTable.pOneOnes = sum;
-                                    break;
-                                case "2":
-                                    GameTable.pOneTwos = sum;
-                                    break;
-                                case "3":
-                                    GameTable.pOneThrees = sum;
-                                    break;
-                                case "4":
-                                    GameTable.pOneFours = sum;
-                                    break;
-                                case "5":
-                                    GameTable.pOneFives = sum;
-                                    break;
-                                case "6":
-                                    GameTable.pOneSixes = sum;
-                                    break;
-                                case "Sequences":
-                                    GameTable.pOneSequences = sum;
-                                    break;
-                            }
-                            break;
-                        case "Player2":
-                            GameTable.pTwoTotal += sum;
-                            switch (categoryChoice){
-                                case "1":
-                                    GameTable.pTwoOnes = sum;
-                                    break;
-                                case "2":
-                                    GameTable.pTwoTwos = sum;
-                                    break;
-                                case "3":
-                                    GameTable.pTwoThrees = sum;
-                                    break;
-                                case "4":
-                                    GameTable.pTwoFours = sum;
-                                    break;
-                                case "5":
-                                    GameTable.pTwoFives = sum;
-                                    break;
-                                case "6":
-                                    GameTable.pTwoSixes = sum;
-                                    break;
-                                case "Sequences":
-                                    GameTable.pTwoSequences = sum;
-                                    break;
-                            }
-                            break;
-                    }
+                    System.out.println("\n" + player + " made " + totalAsideDices + " with value " + categoryChoice + " and scores " + "for that round " + sum);
+                    updateTableScore(sum);
                     GameTable.buildTable();
                 }
                 else if(choice.equalsIgnoreCase("d")){
@@ -540,10 +333,7 @@ public class Game {
                             System.out.println("Invalid input. PLease select the category");
                             choice = sc.next();
                         }
-                        System.out.println("Select category to play.");
-                        System.out.println("Ones (1) Twos(2) Threes(3) Fours(4) Fives(5) Sixes(6) or Sequences(7)");
-
-                        categoryChoice = sc.next().trim();
+                        categorySelectionCheck();
                         if(flag){
                             while(!categoryCheck(player, categoryChoice) || !dices.contains(Integer.parseInt(categoryChoice))){
                                 System.out.println("Please select different category");
@@ -552,45 +342,9 @@ public class Game {
                         }
                         correspondingStr = "";
 
-                        switch (categoryChoice) {
-                            case "1":
-                                correspondingStr = "Ones";
-                                break;
-                            case "2":
-                                correspondingStr = "Twos";
-                                break;
-                            case "3":
-                                correspondingStr = "Threes";
-                                break;
-                            case "4":
-                                correspondingStr = "Fours";
-                                break;
-                            case "5":
-                                correspondingStr = "Fives";
-                                break;
-                            case "6":
-                                correspondingStr = "Sixes";
-                                break;
-                            case "7":
-                                correspondingStr = "Sequences";
-                                break;
-                        }
+                        switchCategories();
+                        printChosenCategory();
 
-                        if (categoryChoice.equalsIgnoreCase("1")) {
-                            System.out.println(correspondingStr + " has been selected");
-                        } else if (categoryChoice.equalsIgnoreCase("2")) {
-                            System.out.println(correspondingStr + " has been selected");
-                        } else if (categoryChoice.equalsIgnoreCase("3")) {
-                            System.out.println(correspondingStr + " has been selected");
-                        } else if (categoryChoice.equalsIgnoreCase("4")) {
-                            System.out.println(correspondingStr + " has been selected");
-                        } else if (categoryChoice.equalsIgnoreCase("5")) {
-                            System.out.println(correspondingStr + " has been selected");
-                        } else if (categoryChoice.equalsIgnoreCase("6")) {
-                            System.out.println(correspondingStr + " has been selected");
-                        } else if (categoryChoice.equalsIgnoreCase("7")) {
-                            System.out.println(correspondingStr + " has been selected");
-                        }
                         asideDicesCount = countCertainDice(Integer.parseInt(categoryChoice));
                         if (asideDicesCount >= 0) {
                             System.out.println("That throw had " + asideDicesCount + " dice with value " + categoryChoice);
@@ -607,65 +361,127 @@ public class Game {
                                 .mapToInt(e -> e)
                                 .sum();
                         currentScore = sum;
-                        System.out.println(player + " made " + totalAsideDices + " with value " + categoryChoice + " and scores " + "for that round " + sum);
-                        switch (GameManager.playerTurn){
-                            case "Player1":
-                                GameTable.pOneTotal += sum;
-                                switch (categoryChoice){
-                                    case "1":
-                                        GameTable.pOneOnes = sum;
-                                        break;
-                                    case "2":
-                                        GameTable.pOneTwos = sum;
-                                        break;
-                                    case "3":
-                                        GameTable.pOneThrees = sum;
-                                        break;
-                                    case "4":
-                                        GameTable.pOneFours = sum;
-                                        break;
-                                    case "5":
-                                        GameTable.pOneFives = sum;
-                                        break;
-                                    case "6":
-                                        GameTable.pOneSixes = sum;
-                                        break;
-                                    case "Sequences":
-                                        GameTable.pOneSequences = sum;
-                                        break;
-                                }
-                                break;
-                            case "Player2":
-                                GameTable.pTwoTotal += sum;
-                                switch (categoryChoice){
-                                    case "1":
-                                        GameTable.pTwoOnes = sum;
-                                        break;
-                                    case "2":
-                                        GameTable.pTwoTwos = sum;
-                                        break;
-                                    case "3":
-                                        GameTable.pTwoThrees = sum;
-                                        break;
-                                    case "4":
-                                        GameTable.pTwoFours = sum;
-                                        break;
-                                    case "5":
-                                        GameTable.pTwoFives = sum;
-                                        break;
-                                    case "6":
-                                        GameTable.pTwoSixes = sum;
-                                        break;
-                                    case "Sequences":
-                                        GameTable.pTwoSequences = sum;
-                                        break;
-                                }
-                                break;
-                        }
+                        System.out.println("\n" + player + " made " + totalAsideDices + " with value " + categoryChoice + " and scores " + "for that round " + sum);
+                        updateTableScore(sum);
                         GameTable.buildTable();
                     }
                 }
             }
+        }
+    }
+    public static void printChosenCategory(){
+        if (categoryChoice.equalsIgnoreCase("1")) {
+            System.out.println(correspondingStr + " has been selected");
+        } else if (categoryChoice.equalsIgnoreCase("2")) {
+            System.out.println(correspondingStr + " has been selected");
+        } else if (categoryChoice.equalsIgnoreCase("3")) {
+            System.out.println(correspondingStr + " has been selected");
+        } else if (categoryChoice.equalsIgnoreCase("4")) {
+            System.out.println(correspondingStr + " has been selected");
+        } else if (categoryChoice.equalsIgnoreCase("5")) {
+            System.out.println(correspondingStr + " has been selected");
+        } else if (categoryChoice.equalsIgnoreCase("6")) {
+            System.out.println(correspondingStr + " has been selected");
+        } else if (categoryChoice.equalsIgnoreCase("7")) {
+            System.out.println(correspondingStr + " has been selected");
+        }
+    }
+    public static void switchCategories(){
+        switch (categoryChoice) {
+            case "1":
+                correspondingStr = "Ones";
+                break;
+            case "2":
+                correspondingStr = "Twos";
+                break;
+            case "3":
+                correspondingStr = "Threes";
+                break;
+            case "4":
+                correspondingStr = "Fours";
+                break;
+            case "5":
+                correspondingStr = "Fives";
+                break;
+            case "6":
+                correspondingStr = "Sixes";
+                break;
+            case "7":
+                correspondingStr = "Sequences";
+                break;
+        }
+    }
+    public static void categorySelectionCheck(){
+        int cat;
+        do{
+            System.out.println("Select category to play.");
+            System.out.println("Ones (1) Twos(2) Threes(3) Fours(4) Fives(5) Sixes(6) or Sequences(7)");
+            while(!sc.hasNextInt()){
+                System.out.println("Invalid input. Please enter a number (1-7): ");
+                sc.next();
+            }
+            cat = sc.nextInt();
+            if(cat < 1 || cat > 7){
+                System.out.println("Invalid input. Please enter a number (1-7): ");
+            }
+            categoryChoice = String.valueOf(cat);
+        }
+        while (Integer.parseInt(categoryChoice) < 1 || Integer.parseInt(categoryChoice) > 7);
+    }
+    public static void updateTableScore(int sum){
+        switch (GameManager.playerTurn){
+            case "Player1":
+                GameTable.pOneTotal += sum;
+                switch (categoryChoice){
+                    case "1":
+                        GameTable.pOneOnes = sum;
+                        break;
+                    case "2":
+                        GameTable.pOneTwos = sum;
+                        break;
+                    case "3":
+                        GameTable.pOneThrees = sum;
+                        break;
+                    case "4":
+                        GameTable.pOneFours = sum;
+                        break;
+                    case "5":
+                        GameTable.pOneFives = sum;
+                        break;
+                    case "6":
+                        GameTable.pOneSixes = sum;
+                        break;
+                    case "Sequences":
+                        GameTable.pOneSequences = sum;
+                        break;
+                }
+                break;
+            case "Player2":
+                GameTable.pTwoTotal += sum;
+                switch (categoryChoice){
+                    case "1":
+                        GameTable.pTwoOnes = sum;
+                        break;
+                    case "2":
+                        GameTable.pTwoTwos = sum;
+                        break;
+                    case "3":
+                        GameTable.pTwoThrees = sum;
+                        break;
+                    case "4":
+                        GameTable.pTwoFours = sum;
+                        break;
+                    case "5":
+                        GameTable.pTwoFives = sum;
+                        break;
+                    case "6":
+                        GameTable.pTwoSixes = sum;
+                        break;
+                    case "Sequences":
+                        GameTable.pTwoSequences = sum;
+                        break;
+                }
+                break;
         }
     }
     public static void addRepeatedDices(int num){
@@ -689,8 +505,5 @@ public class Game {
     public static void exitGameChoice(){
         System.out.println("Exit completed");
         System.exit(0);
-    }
-    public static void showTurnMessage(){
-
     }
 }
