@@ -47,7 +47,7 @@ public class GameTable {
         tableBuilder.append(String.format("| %-12s | %-8s | %-8s | %n","Sixes", pOneSixes, pTwoSixes));
         tableBuilder.append(String.format("--------------------------------------%n"));
 
-        tableBuilder.append(String.format("| %-12s | %-8s | %-8s | %n","Sequences", pOneSequences, pTwoSequences));
+        tableBuilder.append(String.format("| %-12s | %-8s | %-8s | %n","7", pOneSequences, pTwoSequences));
         tableBuilder.append(String.format("--------------------------------------%n"));
 
         tableBuilder.append(String.format("| %-12s | %-8s | %-8s | %n","Total", pOneTotal, pTwoTotal));

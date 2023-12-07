@@ -54,7 +54,6 @@ public class Game {
             case "0" : exitGameChoice();
         }
     }
-
     public static void playerTurn(){
         String choice = "";
         System.out.println("\n---------");
@@ -80,7 +79,7 @@ public class Game {
         totalAsideDices = 0;
     }
     public static void playGameChoice(){
-        for(int i=1;i<ROUNDS;i++){
+        for(int i=1;i<=ROUNDS;i++){
             playerTurn();
             resetLists();
             playerTurn();
@@ -90,14 +89,48 @@ public class Game {
     }
     public static boolean categoryCheck(String player, String category){
         Set<String> categories = playerCategories.computeIfAbsent(player, k -> new HashSet<>());
-        if(categories.contains(category)){
+        while(categories.contains(category)){
             System.out.println(player + " has already played in the category " + category);
             return false;
         }
         categories.add(category);
         return true;
     }
-
+    public static void categorySelectionCheck(){
+        int cat;
+        do{
+            System.out.println("Select category to play.");
+            System.out.println("Ones (1) Twos(2) Threes(3) Fours(4) Fives(5) Sixes(6) or Sequences(7)");
+            while(!sc.hasNextInt()){
+                System.out.println("Invalid input. Please enter a number (1-7): ");
+                sc.next();
+            }
+            cat = sc.nextInt();
+            if(cat < 1 || cat > 8){
+                System.out.println("Invalid input. Please enter a number (1-7): ");
+            }
+            categoryChoice = String.valueOf(cat);
+        }
+        while (Integer.parseInt(categoryChoice) < 1 || Integer.parseInt(categoryChoice) > 8);
+    }
+    public static boolean sequenceCheck(List<Integer> selectedNumbers){
+        Collections.sort(selectedNumbers);
+        List<Integer> seq1 = new ArrayList<>();
+        List<Integer> seq2 = new ArrayList<>();
+        for(int i = 1; i <= 5;i++){
+            seq1.add(i);
+        }
+        for(int i = 2; i <= 6;i++){
+            seq2.add(i);
+        }
+        if(selectedNumbers.equals(seq1) || selectedNumbers.equals(seq2)){
+            System.out.println("Sequence has been achieved");
+            return true;
+        }else{
+            System.out.println("Sequence has not been achieved");
+            return false;
+        }
+    }
     public static void playerThrowDice(String player) {
         String choice = "";
         System.out.print("Throw: ");
@@ -118,99 +151,394 @@ public class Game {
         }
         if(choice.equalsIgnoreCase("s")){
             categorySelectionCheck();
-            if(flag){
-                while(!categoryCheck(player, categoryChoice) || !dices.contains(Integer.parseInt(categoryChoice))){
-                    System.out.println("Please select different category");
-                    categoryChoice = sc.next().trim();
-                }
-            }
-            correspondingStr = "";
+            if(flag) {
+                if (categoryChoice.equalsIgnoreCase("7")) {
+                    List<Integer> selectedNumbers = new ArrayList<>();
+                    Scanner input = new Scanner(System.in);
+                    switchCategories();
 
-            switchCategories();
-            printChosenCategory();
-
-            asideDicesCount = countCertainDice(Integer.parseInt(categoryChoice));
-            if (asideDicesCount > 0) {
-                System.out.println("That throw had " + asideDicesCount + " dice with value " + categoryChoice);
-                System.out.println("Setting aside " + asideDicesCount + " dice: ");
-                totalAsideDices += asideDicesCount;
-            }
-
-            for(int i = 0; i < totalAsideDices; i++){
-                System.out.print("[" + categoryChoice + "]");
-            }
-
-            addRepeatedDices(Integer.parseInt(categoryChoice));
-
-            diceLeft = dices.size() - asideDicesCount;
-
-            System.out.println("\nNext throw of this turn, " + player + " to throw " + diceLeft + " dice");
-            System.out.println("Throw " + diceLeft + " dice" + ", enter 't' to throw > ");
-            choice = sc.next();
-            if (dices.size() > diceLeft) {
-                List<Integer> sublist = dices.subList(0, 0);
-                dices = new ArrayList<>(sublist);
-            }
-            for (int i = 0; i <= diceLeft - 1; i++) {
-                int randomN = getRandomDice();
-                dices.add(randomN);
-            }
-
-            asideDicesCount = countCertainDice(Integer.parseInt(categoryChoice));
-
-            totalAsideDices += asideDicesCount;
-            System.out.println("Throw: " + dices);
-            System.out.println("That throw had " + countCertainDice(Integer.parseInt(categoryChoice)) + " dice with value " + categoryChoice);
-            System.out.println("Setting aside " + totalAsideDices + " dice: ");
-
-            for(int i = 0; i < totalAsideDices; i++){
-                System.out.print("[" + categoryChoice + "]");
-            }
-
-            addRepeatedDices(Integer.parseInt(categoryChoice));
-            diceLeft = dices.size() - asideDicesCount;
-            System.out.println("\nNext throw of this turn, " + player + " to throw " + diceLeft + " dice");
-            System.out.println("Throw " + diceLeft + " dice, enter 't' to throw > ");
-            choice = sc.next();
-            while (!choice.equals("t")) {
-                choice = sc.next();
-                System.out.println("Invalid input. PLease input 't'");
-            }
-            if (choice.equals("t")) {
-                if (dices.size() > diceLeft) {
-                    List<Integer> sublist = dices.subList(0, diceLeft);
-                    dices = new ArrayList<>(sublist);
-                }
-                dices.clear();
-                for (int i = 0; i <= diceLeft - 1; i++) {
-                    int randomN = getRandomDice();
-                    dices.add(randomN);
-                }
-                asideDicesCount = countCertainDice(Integer.parseInt(categoryChoice));
-                if (asideDicesCount >= 0) {
-                    totalAsideDices += asideDicesCount;
-                    for (int i = 0; i < dices.size(); i++) {
-                        if (dices.get(i) == Integer.parseInt(categoryChoice)) {
-                            selectedDices.add(dices.get(i));
-                        } else {
-                            continue;
+                    System.out.println("0.None");
+                    for (int i = 0; i <= 5; i++) {
+                        if (i > 0 && i <= dices.size()) {
+                            System.out.println(i + "." + "[" + dices.get(i - 1) + "]");
                         }
                     }
-                    int sum = selectedDices.stream()
-                            .mapToInt(e -> e)
-                            .sum();
-                    currentScore = sum;
-                    System.out.println("Throw: " + dices);
-                    System.out.println("That throw had " + asideDicesCount + " dice with value " + categoryChoice + ".");
-                    System.out.println("Setting aside " + totalAsideDices + " dice: ");
-                    addRepeatedDices(Integer.parseInt(categoryChoice));
+                    Map<Integer, Integer> labelToNumberMap = new HashMap<>();
+                    for (int i = 1; i <= dices.size(); i++) {
+                        labelToNumberMap.put(i, dices.get(i - 1));
+                    }
+                    System.out.println("Enter which dice you wish to set aside using the number labels separated by a spase (e.g., 1, 3, 5) or enter 0 for none >");
+                    String seqChoice = input.nextLine();
+                    if (seqChoice.equalsIgnoreCase("0")) {
+                        System.out.println("You have not selected any dice to keep from that throw.");
+                        System.out.println("Your turn has been updated and 5 dices has been thrown");
+                        dices.clear();
+                        for (int i = 0; i < maxDiceCount; i++) {
+                            int randomN = getRandomDice();
+                            dices.add(randomN);
+                        }
+                        System.out.println("0.None");
+                        for (int i = 0; i <= 5; i++) {
+                            if (i > 0 && i <= dices.size()) {
+                                System.out.println(i + "." + "[" + dices.get(i - 1) + "]");
+                            }
+                        }
+                        Map<Integer, Integer> lblToNumberMap = new HashMap<>();
+                        for (int i = 1; i <= dices.size(); i++) {
+                            lblToNumberMap.put(i, dices.get(i - 1));
+                        }
+                        System.out.println("Enter which dice you wish to set aside using the number labels separated by a spase (e.g., 1, 3, 5) or enter 0 for none >");
+                        seqChoice = input.nextLine();
+                        if(seqChoice.equalsIgnoreCase("0")){
+                            System.out.println("You have not selected any dice to keep from that throw.");
+                            System.out.println("Your turn has been updated and 5 dices has been thrown");
+                            System.out.println("LAST TURN: ");
+                            dices.clear();
+                            for (int i = 0; i < maxDiceCount; i++) {
+                                int randomN = getRandomDice();
+                                dices.add(randomN);
+                            }
+                            System.out.println("0.None");
+                            for (int i = 0; i <= 5; i++) {
+                                if (i > 0 && i <= dices.size()) {
+                                    System.out.println(i + "." + "[" + dices.get(i - 1) + "]");
+                                }
+                            }
+                            Map<Integer, Integer> lbl2ToNumberMap = new HashMap<>();
+                            for (int i = 1; i <= dices.size(); i++) {
+                                lbl2ToNumberMap.put(i, dices.get(i - 1));
+                            }
+                            if(sequenceCheck(selectedNumbers) == true){
+                                int sum = 20;
+                                updateTableScore(sum);
+                                GameTable.buildTable();
+                                return;
+                            }else{
+                                int sum = 0;
+                                updateTableScore(sum);
+                                GameTable.buildTable();
+                                return;
+                            }
+                        }
+                        else{
+                            String[] lbArr = seqChoice.split("\\s+");
+                            for (String labelStr : lbArr) {
+                                try {
+                                    int label = Integer.parseInt(labelStr);
+                                    if (labelToNumberMap.containsKey(label)) {
+                                        selectedNumbers.add(lblToNumberMap.get(label));
+                                    } else {
+                                        System.out.println("Invalid label: " + label);
+                                    }
+                                } catch (NumberFormatException e) {
+                                    System.out.println("Invalid input. Please enter valid integer labels separated by space.");
+                                    return;
+                                }
+                            }
+                            System.out.println("You have selected the following dice to keep.");
+                            for (int i = 0; i < selectedNumbers.size(); i++) {
+                                System.out.println("[ " + selectedNumbers.get(i) + " ]");
+                            }
+                            dices.clear();
+                            for (int i = 0; i < maxDiceCount; i++) {
+                                int randomN = getRandomDice();
+                                dices.add(randomN);
+                            }
+                            diceLeft = dices.size() - selectedNumbers.size();
+                            System.out.println("Last throw of this turn " + player + " to throw " + diceLeft + " dice.");
+                            System.out.println("Throw " + diceLeft + " dice, enter 't' to throw ");
+                            System.out.println(selectedNumbers);
+                            choice = sc.next().trim();
+                            while (!choice.equalsIgnoreCase("t")) {
+                                System.out.println("Invalid input. PLease input 't'");
+                                choice = sc.next();
+                            }
+                            if(choice.equalsIgnoreCase("t")){
+                                if (dices.size() > diceLeft) {
+                                    List<Integer> sublist = dices.subList(0, 0);
+                                    dices = new ArrayList<>(sublist);
+                                }
+                                for (int i = 0; i <= diceLeft - 1; i++) {
+                                    int randomN = getRandomDice();
+                                    dices.add(randomN);
+                                }
+                                System.out.println("Throw: " + dices);
+                                for (int i = 0; i < selectedNumbers.size(); i++) {
+                                    System.out.println("[ " + selectedNumbers.get(i) + " ]");
+                                }
+                                for(int i = 0; i < dices.size();i++){
+                                    selectedNumbers.add(dices.get(i));
+                                }
+                                if(sequenceCheck(selectedNumbers) == true){
+                                    int sum = 20;
+                                    updateTableScore(sum);
+                                    GameTable.buildTable();
+                                    return;
+                                }else{
+                                    int sum = 0;
+                                    updateTableScore(sum);
+                                    GameTable.buildTable();
+                                    return;
+                                }
+                            }
+
+                        }
+                    }
+                    else {
+                        String[] labelArr = seqChoice.split("\\s+");
+                        for (String labelStr : labelArr) {
+                            try {
+                                int label = Integer.parseInt(labelStr);
+                                if (labelToNumberMap.containsKey(label)) {
+                                    selectedNumbers.add(labelToNumberMap.get(label));
+                                } else {
+                                    System.out.println("Invalid label: " + label);
+                                }
+                            } catch (NumberFormatException e) {
+                                System.out.println("Invalid input. Please enter valid integer labels separated by space.");
+                                return;
+                            }
+                        }
+                        System.out.println("You have selected the following dice to keep.");
+
+                        for (int i = 0; i < selectedNumbers.size(); i++) {
+                            System.out.println("[ " + selectedNumbers.get(i) + " ]");
+                        }
+                        if(selectedNumbers.size() == 5){
+                            sequenceCheck(selectedNumbers);
+                            int sum = 20;
+                            updateTableScore(sum);
+                            GameTable.buildTable();
+                            return;
+                        }
+                        diceLeft = dices.size() - selectedNumbers.size();
+                        System.out.println("Second throw of this turn " + player + " to throw " + diceLeft + " dice.");
+                        System.out.println("Throw " + diceLeft + " dice, enter 't' to throw ");
+                        choice = sc.next().trim();
+                        while (!choice.equalsIgnoreCase("t")) {
+                            System.out.println("Invalid input. PLease input 't'");
+                            choice = sc.next();
+                        }
+                        if (choice.equalsIgnoreCase("t")) {
+                            if (dices.size() > diceLeft) {
+                                List<Integer> sublist = dices.subList(0, 0);
+                                dices = new ArrayList<>(sublist);
+                            }
+                            for (int i = 0; i <= diceLeft - 1; i++) {
+                                int randomN = getRandomDice();
+                                dices.add(randomN);
+                            }
+                            System.out.println("Throw: " + dices);
+                            System.out.println("0.None");
+                            for (int i = 0; i <= 5; i++) {
+                                if (i > 0 && i <= dices.size()) {
+                                    System.out.println(i + "." + "[" + dices.get(i - 1) + "]");
+                                }
+                            }
+                            Map<Integer, Integer> lblToNumberMap = new HashMap<>();
+                            for (int i = 1; i <= dices.size(); i++) {
+                                lblToNumberMap.put(i, dices.get(i - 1));
+                            }
+                            System.out.println("Enter which dice you wish to set aside using the number labels separated by a spase (e.g., 1, 3, 5) or enter 0 for none >");
+                            seqChoice = input.nextLine();
+                            if(seqChoice.equalsIgnoreCase("0")){
+                                System.out.println("You have not selected any dice to keep from that throw.");
+                                System.out.println("You have last turn to throw the dices");
+                                dices.clear();
+                                for (int i = 0; i < diceLeft - 1; i++) {
+                                    int randomN = getRandomDice();
+                                    dices.add(randomN);
+                                }
+                                System.out.println("0.None");
+                                for (int i = 0; i <= 5; i++) {
+                                    if (i > 0 && i <= dices.size()) {
+                                        System.out.println(i + "." + "[" + dices.get(i - 1) + "]");
+                                    }
+                                }
+                                Map<Integer, Integer> lbl2ToNumberMap = new HashMap<>();
+                                for (int i = 1; i <= dices.size(); i++) {
+                                    lbl2ToNumberMap.put(i, dices.get(i - 1));
+                                }
+                                if(sequenceCheck(selectedNumbers) == true){
+                                    int sum = 20;
+                                    updateTableScore(sum);
+                                    GameTable.buildTable();
+                                    return;
+                                }else{
+                                    int sum = 0;
+                                    updateTableScore(sum);
+                                    GameTable.buildTable();
+                                    return;
+                                }
+
+                            }
+                            else{
+                                String[] lArr = seqChoice.split("\\s+");
+                                for (String labelStr : lArr) {
+                                    try {
+                                        int label = Integer.parseInt(labelStr);
+                                        if (lblToNumberMap.containsKey(label)) {
+                                            selectedNumbers.add(lblToNumberMap.get(label));
+                                        } else {
+                                            System.out.println("Invalid label: " + label);
+                                        }
+                                    } catch (NumberFormatException e) {
+                                        System.out.println("Invalid input. Please enter valid integer labels separated by space.");
+                                        return;
+                                    }
+                                }
+                                System.out.println("You have selected the following dice to keep.");
+                                for (int i = 0; i < selectedNumbers.size(); i++) {
+                                    System.out.println("[ " + selectedNumbers.get(i) + " ]");
+                                }
+                                dices.clear();
+                                for (int i = 0; i < maxDiceCount; i++) {
+                                    int randomN = getRandomDice();
+                                    dices.add(randomN);
+                                }
+                                diceLeft = dices.size() - selectedNumbers.size();
+                                System.out.println("Last throw of this turn " + player + " to throw " + diceLeft + " dice.");
+                                System.out.println("Throw " + diceLeft + " dice, enter 't' to throw ");
+                                System.out.println(selectedNumbers);
+                                choice = sc.next().trim();
+                                while (!choice.equalsIgnoreCase("t")) {
+                                    System.out.println("Invalid input. PLease input 't'");
+                                    choice = sc.next();
+                                }
+                                if(choice.equalsIgnoreCase("t")){
+                                    if (dices.size() > diceLeft) {
+                                        List<Integer> sublist = dices.subList(0, 0);
+                                        dices = new ArrayList<>(sublist);
+                                    }
+                                    for (int i = 0; i <= diceLeft - 1; i++) {
+                                        int randomN = getRandomDice();
+                                        dices.add(randomN);
+                                    }
+                                    System.out.println("Throw: " + dices);
+                                    for (int i = 0; i < selectedNumbers.size(); i++) {
+                                        System.out.println("[ " + selectedNumbers.get(i) + " ]");
+                                    }
+                                    for(int i = 0; i < dices.size();i++){
+                                        selectedNumbers.add(dices.get(i));
+                                    }
+                                    if(sequenceCheck(selectedNumbers) == true){
+                                        int sum = 20;
+                                        updateTableScore(sum);
+                                        GameTable.buildTable();
+                                        return;
+                                    }else{
+                                        int sum = 0;
+                                        updateTableScore(sum);
+                                        GameTable.buildTable();
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else{
+                    while(!categoryCheck(player, categoryChoice) || !dices.contains(Integer.parseInt(categoryChoice))){
+                        System.out.println("Please select different category");
+                        categoryChoice = sc.next().trim();
+                    }
+                    correspondingStr = "";
+
+                    switchCategories();
+                    printChosenCategory();
+
+                    asideDicesCount = countCertainDice(Integer.parseInt(categoryChoice));
+                    if (asideDicesCount > 0) {
+                        System.out.println("That throw had " + asideDicesCount + " dice with value " + categoryChoice);
+                        System.out.println("Setting aside " + asideDicesCount + " dice: ");
+                        totalAsideDices += asideDicesCount;
+                    }
 
                     for(int i = 0; i < totalAsideDices; i++){
                         System.out.print("[" + categoryChoice + "]");
                     }
-                    System.out.println("\n" + player + " made " + totalAsideDices + " with value " + categoryChoice + " and scores " + "for that round " + sum);
-                    updateTableScore(sum);
-                    GameTable.buildTable();
+
+                    addRepeatedDices(Integer.parseInt(categoryChoice));
+
+                    diceLeft = dices.size() - asideDicesCount;
+
+                    System.out.println("\nNext throw of this turn, " + player + " to throw " + diceLeft + " dice");
+                    System.out.println("Throw " + diceLeft + " dice" + ", enter 't' to throw or 'f' to forfeit > ");
+                    choice = sc.next();
+                    while (!choice.equals("t") && !choice.equals("f")) {
+                        System.out.println("Invalid input. PLease input 't' to throw the dices");
+                        choice = sc.next();
+                    }
+                    if(choice.equalsIgnoreCase("f")){
+                        System.out.println(player+" lost");
+                        System.exit(0);
+                    }
+                    if (dices.size() > diceLeft) {
+                        List<Integer> sublist = dices.subList(0, 0);
+                        dices = new ArrayList<>(sublist);
+                    }
+                    for (int i = 0; i <= diceLeft - 1; i++) {
+                        int randomN = getRandomDice();
+                        dices.add(randomN);
+                    }
+
+                    asideDicesCount = countCertainDice(Integer.parseInt(categoryChoice));
+
+                    totalAsideDices += asideDicesCount;
+                    System.out.println("Throw: " + dices);
+                    System.out.println("That throw had " + countCertainDice(Integer.parseInt(categoryChoice)) + " dice with value " + categoryChoice);
+                    System.out.println("Setting aside " + totalAsideDices + " dice: ");
+
+                    for(int i = 0; i < totalAsideDices; i++){
+                        System.out.print("[" + categoryChoice + "]");
+                    }
+
+                    addRepeatedDices(Integer.parseInt(categoryChoice));
+                    diceLeft = dices.size() - asideDicesCount;
+                    System.out.println("\nNext throw of this turn, " + player + " to throw " + diceLeft + " dice");
+                    System.out.println("Throw " + diceLeft + " dice, enter 't' to throw > ");
+                    choice = sc.next();
+                    while (!choice.equals("t")) {
+                        choice = sc.next();
+                        System.out.println("Invalid input. PLease input 't'");
+                    }
+                    if (choice.equals("t")) {
+                        if (dices.size() > diceLeft) {
+                            List<Integer> sublist = dices.subList(0, diceLeft);
+                            dices = new ArrayList<>(sublist);
+                        }
+                        dices.clear();
+                        for (int i = 0; i <= diceLeft - 1; i++) {
+                            int randomN = getRandomDice();
+                            dices.add(randomN);
+                        }
+                        asideDicesCount = countCertainDice(Integer.parseInt(categoryChoice));
+                        if (asideDicesCount >= 0) {
+                            totalAsideDices += asideDicesCount;
+                            for (int i = 0; i < dices.size(); i++) {
+                                if (dices.get(i) == Integer.parseInt(categoryChoice)) {
+                                    selectedDices.add(dices.get(i));
+                                } else {
+                                    continue;
+                                }
+                            }
+                            int sum = selectedDices.stream()
+                                    .mapToInt(e -> e)
+                                    .sum();
+                            currentScore = sum;
+                            System.out.println("Throw: " + dices);
+                            System.out.println("That throw had " + asideDicesCount + " dice with value " + categoryChoice + ".");
+                            System.out.println("Setting aside " + totalAsideDices + " dice: ");
+                            addRepeatedDices(Integer.parseInt(categoryChoice));
+
+                            for(int i = 0; i < totalAsideDices; i++){
+                                System.out.print("[" + categoryChoice + "]");
+                            }
+                            System.out.println("\n" + player + " made " + totalAsideDices + " with value " + categoryChoice + " and scores " + "for that round " + sum);
+                            updateTableScore(sum);
+                            GameTable.buildTable();
+                        }
+                    }
                 }
             }
         }
@@ -222,9 +550,9 @@ public class Game {
                 dices.add(randomN);
             }
             System.out.println("\nNext throw of this turn, " + player + " to throw 5 dice");
-            System.out.println("Throw 5 dice, enter 't' to throw ");
+            System.out.println("Throw 5 dice, enter 't' to throw or 'f' to forfeit");
             choice = sc.next();
-            while (!choice.equals("t")) {
+            while (!choice.equals("t") && !choice.equals("f")) {
                 System.out.println("Invalid input. PLease input 't' to throw the dices");
                 choice = sc.next();
             }
@@ -247,66 +575,350 @@ public class Game {
                     System.out.println("Invalid input. PLease input 's' or 'd'");
                     choice = sc.next().trim();
                 }
-                if(choice.equalsIgnoreCase("s")){
+                if(choice.equalsIgnoreCase("s")) {
                     categorySelectionCheck();
-                    if(flag){
-                        while(!categoryCheck(player, categoryChoice) || !dices.contains(Integer.parseInt(categoryChoice))){
-                            System.out.println("Please select different category");
-                            categoryChoice = sc.next().trim();
+                    if (categoryChoice.equalsIgnoreCase("7")) {
+                        List<Integer> selectedNumbers = new ArrayList<>();
+                        Scanner input = new Scanner(System.in);
+                        switchCategories();
+
+                        System.out.println("0.None");
+                        for (int i = 0; i <= 5; i++) {
+                            if (i > 0 && i <= dices.size()) {
+                                System.out.println(i + "." + "[" + dices.get(i - 1) + "]");
+                            }
+                        }
+                        Map<Integer, Integer> labelToNumberMap = new HashMap<>();
+                        for (int i = 1; i <= dices.size(); i++) {
+                            labelToNumberMap.put(i, dices.get(i - 1));
+                        }
+                        System.out.println("Enter which dice you wish to set aside using the number labels separated by a spase (e.g., 1, 3, 5) or enter 0 for none >");
+                        String seqChoice = input.nextLine();
+                        if (seqChoice.equalsIgnoreCase("0")) {
+                            System.out.println("You have not selected any dice to keep from that throw.");
+                            System.out.println("Your turn has been updated and 5 dices has been thrown");
+                            dices.clear();
+                            for (int i = 0; i < maxDiceCount; i++) {
+                                int randomN = getRandomDice();
+                                dices.add(randomN);
+                            }
+                            System.out.println("0.None");
+                            for (int i = 0; i <= 5; i++) {
+                                if (i > 0 && i <= dices.size()) {
+                                    System.out.println(i + "." + "[" + dices.get(i - 1) + "]");
+                                }
+                            }
+                            Map<Integer, Integer> lblToNumberMap = new HashMap<>();
+                            for (int i = 1; i <= dices.size(); i++) {
+                                lblToNumberMap.put(i, dices.get(i - 1));
+                            }
+                            System.out.println("Enter which dice you wish to set aside using the number labels separated by a spase (e.g., 1, 3, 5) or enter 0 for none >");
+                            seqChoice = input.nextLine();
+                            if (seqChoice.equalsIgnoreCase("0")) {
+                                System.out.println("You have not selected any dice to keep from that throw.");
+                                System.out.println("Your turn has been updated and 5 dices has been thrown");
+                                System.out.println("LAST TURN: ");
+                                dices.clear();
+                                for (int i = 0; i < maxDiceCount; i++) {
+                                    int randomN = getRandomDice();
+                                    dices.add(randomN);
+                                }
+                                System.out.println("0.None");
+                                for (int i = 0; i <= 5; i++) {
+                                    if (i > 0 && i <= dices.size()) {
+                                        System.out.println(i + "." + "[" + dices.get(i - 1) + "]");
+                                    }
+                                }
+                                Map<Integer, Integer> lbl2ToNumberMap = new HashMap<>();
+                                for (int i = 1; i <= dices.size(); i++) {
+                                    lbl2ToNumberMap.put(i, dices.get(i - 1));
+                                }
+                                if (sequenceCheck(selectedNumbers) == true) {
+                                    int sum = 20;
+                                    updateTableScore(sum);
+                                    GameTable.buildTable();
+                                    return;
+                                } else {
+                                    int sum = 0;
+                                    updateTableScore(sum);
+                                    GameTable.buildTable();
+                                    return;
+                                }
+                            } else {
+                                String[] lbArr = seqChoice.split("\\s+");
+                                for (String labelStr : lbArr) {
+                                    try {
+                                        int label = Integer.parseInt(labelStr);
+                                        if (labelToNumberMap.containsKey(label)) {
+                                            selectedNumbers.add(lblToNumberMap.get(label));
+                                        } else {
+                                            System.out.println("Invalid label: " + label);
+                                        }
+                                    } catch (NumberFormatException e) {
+                                        System.out.println("Invalid input. Please enter valid integer labels separated by space.");
+                                        return;
+                                    }
+                                }
+                                System.out.println("You have selected the following dice to keep.");
+                                for (int i = 0; i < selectedNumbers.size(); i++) {
+                                    System.out.println("[ " + selectedNumbers.get(i) + " ]");
+                                }
+                                dices.clear();
+                                for (int i = 0; i < maxDiceCount; i++) {
+                                    int randomN = getRandomDice();
+                                    dices.add(randomN);
+                                }
+                                diceLeft = dices.size() - selectedNumbers.size();
+                                System.out.println("Last throw of this turn " + player + " to throw " + diceLeft + " dice.");
+                                System.out.println("Throw " + diceLeft + " dice, enter 't' to throw ");
+                                System.out.println(selectedNumbers);
+                                choice = sc.next().trim();
+                                while (!choice.equalsIgnoreCase("t")) {
+                                    System.out.println("Invalid input. PLease input 't'");
+                                    choice = sc.next();
+                                }
+                                if (choice.equalsIgnoreCase("t")) {
+                                    if (dices.size() > diceLeft) {
+                                        List<Integer> sublist = dices.subList(0, 0);
+                                        dices = new ArrayList<>(sublist);
+                                    }
+                                    for (int i = 0; i <= diceLeft - 1; i++) {
+                                        int randomN = getRandomDice();
+                                        dices.add(randomN);
+                                    }
+                                    System.out.println("Throw: " + dices);
+                                    for (int i = 0; i < selectedNumbers.size(); i++) {
+                                        System.out.println("[ " + selectedNumbers.get(i) + " ]");
+                                    }
+                                    for (int i = 0; i < dices.size(); i++) {
+                                        selectedNumbers.add(dices.get(i));
+                                    }
+                                    if (sequenceCheck(selectedNumbers) == true) {
+                                        int sum = 20;
+                                        updateTableScore(sum);
+                                        GameTable.buildTable();
+                                        return;
+                                    } else {
+                                        int sum = 0;
+                                        updateTableScore(sum);
+                                        GameTable.buildTable();
+                                        return;
+                                    }
+                                }
+
+                            }
+                        } else {
+                            String[] labelArr = seqChoice.split("\\s+");
+                            for (String labelStr : labelArr) {
+                                try {
+                                    int label = Integer.parseInt(labelStr);
+                                    if (labelToNumberMap.containsKey(label)) {
+                                        selectedNumbers.add(labelToNumberMap.get(label));
+                                    } else {
+                                        System.out.println("Invalid label: " + label);
+                                    }
+                                } catch (NumberFormatException e) {
+                                    System.out.println("Invalid input. Please enter valid integer labels separated by space.");
+                                    return;
+                                }
+                            }
+                            System.out.println("You have selected the following dice to keep.");
+
+                            for (int i = 0; i < selectedNumbers.size(); i++) {
+                                System.out.println("[ " + selectedNumbers.get(i) + " ]");
+                            }
+                            if (selectedNumbers.size() == 5) {
+                                sequenceCheck(selectedNumbers);
+                                int sum = 20;
+                                updateTableScore(sum);
+                                GameTable.buildTable();
+                                return;
+                            }
+                            diceLeft = dices.size() - selectedNumbers.size();
+                            System.out.println("Second throw of this turn " + player + " to throw " + diceLeft + " dice.");
+                            System.out.println("Throw " + diceLeft + " dice, enter 't' to throw ");
+                            choice = sc.next().trim();
+                            while (!choice.equalsIgnoreCase("t")) {
+                                System.out.println("Invalid input. PLease input 't'");
+                                choice = sc.next();
+                            }
+                            if (choice.equalsIgnoreCase("t")) {
+                                if (dices.size() > diceLeft) {
+                                    List<Integer> sublist = dices.subList(0, 0);
+                                    dices = new ArrayList<>(sublist);
+                                }
+                                for (int i = 0; i <= diceLeft - 1; i++) {
+                                    int randomN = getRandomDice();
+                                    dices.add(randomN);
+                                }
+                                System.out.println("Throw: " + dices);
+                                System.out.println("0.None");
+                                for (int i = 0; i <= 5; i++) {
+                                    if (i > 0 && i <= dices.size()) {
+                                        System.out.println(i + "." + "[" + dices.get(i - 1) + "]");
+                                    }
+                                }
+                                Map<Integer, Integer> lblToNumberMap = new HashMap<>();
+                                for (int i = 1; i <= dices.size(); i++) {
+                                    lblToNumberMap.put(i, dices.get(i - 1));
+                                }
+                                System.out.println("Enter which dice you wish to set aside using the number labels separated by a spase (e.g., 1, 3, 5) or enter 0 for none >");
+                                seqChoice = input.nextLine();
+                                if (seqChoice.equalsIgnoreCase("0")) {
+                                    System.out.println("You have not selected any dice to keep from that throw.");
+                                    System.out.println("You have last turn to throw the dices");
+                                    dices.clear();
+                                    for (int i = 0; i < diceLeft - 1; i++) {
+                                        int randomN = getRandomDice();
+                                        dices.add(randomN);
+                                    }
+                                    System.out.println("0.None");
+                                    for (int i = 0; i <= 5; i++) {
+                                        if (i > 0 && i <= dices.size()) {
+                                            System.out.println(i + "." + "[" + dices.get(i - 1) + "]");
+                                        }
+                                    }
+                                    Map<Integer, Integer> lbl2ToNumberMap = new HashMap<>();
+                                    for (int i = 1; i <= dices.size(); i++) {
+                                        lbl2ToNumberMap.put(i, dices.get(i - 1));
+                                    }
+                                    if (sequenceCheck(selectedNumbers) == true) {
+                                        int sum = 20;
+                                        updateTableScore(sum);
+                                        GameTable.buildTable();
+                                        return;
+                                    } else {
+                                        int sum = 0;
+                                        updateTableScore(sum);
+                                        GameTable.buildTable();
+                                        return;
+                                    }
+
+                                } else {
+                                    String[] lArr = seqChoice.split("\\s+");
+                                    for (String labelStr : lArr) {
+                                        try {
+                                            int label = Integer.parseInt(labelStr);
+                                            if (lblToNumberMap.containsKey(label)) {
+                                                selectedNumbers.add(lblToNumberMap.get(label));
+                                            } else {
+                                                System.out.println("Invalid label: " + label);
+                                            }
+                                        } catch (NumberFormatException e) {
+                                            System.out.println("Invalid input. Please enter valid integer labels separated by space.");
+                                            return;
+                                        }
+                                    }
+                                    System.out.println("You have selected the following dice to keep.");
+                                    for (int i = 0; i < selectedNumbers.size(); i++) {
+                                        System.out.println("[ " + selectedNumbers.get(i) + " ]");
+                                    }
+                                    dices.clear();
+                                    for (int i = 0; i < maxDiceCount; i++) {
+                                        int randomN = getRandomDice();
+                                        dices.add(randomN);
+                                    }
+                                    diceLeft = dices.size() - selectedNumbers.size();
+                                    System.out.println("Last throw of this turn " + player + " to throw " + diceLeft + " dice.");
+                                    System.out.println("Throw " + diceLeft + " dice, enter 't' to throw ");
+                                    System.out.println(selectedNumbers);
+                                    choice = sc.next().trim();
+                                    while (!choice.equalsIgnoreCase("t")) {
+                                        System.out.println("Invalid input. PLease input 't'");
+                                        choice = sc.next();
+                                    }
+                                    if (choice.equalsIgnoreCase("t")) {
+                                        if (dices.size() > diceLeft) {
+                                            List<Integer> sublist = dices.subList(0, 0);
+                                            dices = new ArrayList<>(sublist);
+                                        }
+                                        for (int i = 0; i <= diceLeft - 1; i++) {
+                                            int randomN = getRandomDice();
+                                            dices.add(randomN);
+                                        }
+                                        System.out.println("Throw: " + dices);
+                                        for (int i = 0; i < selectedNumbers.size(); i++) {
+                                            System.out.println("[ " + selectedNumbers.get(i) + " ]");
+                                        }
+                                        for (int i = 0; i < dices.size(); i++) {
+                                            selectedNumbers.add(dices.get(i));
+                                        }
+                                        if (sequenceCheck(selectedNumbers) == true) {
+                                            int sum = 20;
+                                            updateTableScore(sum);
+                                            GameTable.buildTable();
+                                            return;
+                                        } else {
+                                            int sum = 0;
+                                            updateTableScore(sum);
+                                            GameTable.buildTable();
+                                            return;
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
-                    correspondingStr = "";
-                    switchCategories();
+                    else {
+                        if (flag) {
+                            while (!categoryCheck(player, categoryChoice) || !dices.contains(Integer.parseInt(categoryChoice))) {
+                                System.out.println("Please select different category");
+                                categoryChoice = sc.next().trim();
+                            }
+                        }
+                        correspondingStr = "";
+                        switchCategories();
 
-                    printChosenCategory();
-                    asideDicesCount = countCertainDice(Integer.parseInt(categoryChoice));
-                    if (asideDicesCount >= 0) {
-                        System.out.println("That throw had " + asideDicesCount + " dice with value " + categoryChoice);
-                        System.out.println("Setting aside " + asideDicesCount + " dice: ");
+                        printChosenCategory();
+                        asideDicesCount = countCertainDice(Integer.parseInt(categoryChoice));
+                        if (asideDicesCount >= 0) {
+                            System.out.println("That throw had " + asideDicesCount + " dice with value " + categoryChoice);
+                            System.out.println("Setting aside " + asideDicesCount + " dice: ");
+                            totalAsideDices += asideDicesCount;
+                        }
+
+                        for (int i = 0; i < totalAsideDices; i++) {
+                            System.out.print("[" + categoryChoice + "]");
+                        }
+
+                        addRepeatedDices(Integer.parseInt(categoryChoice));
+
+                        diceLeft = dices.size() - asideDicesCount;
+                        System.out.println("\nLast throw of this turn, " + player + " to throw " + diceLeft + " dice");
+                        System.out.println("Throw " + diceLeft + " dice" + ", enter 't' to throw");
+                        choice = sc.next();
+
+                        if (dices.size() > diceLeft) {
+                            List<Integer> sublist = dices.subList(0, 0);
+                            dices = new ArrayList<>(sublist);
+                        }
+
+                        for (int i = 0; i <= diceLeft - 1; i++) {
+                            int randomN = getRandomDice();
+                            dices.add(randomN);
+                        }
+
+                        asideDicesCount = countCertainDice(Integer.parseInt(categoryChoice));
                         totalAsideDices += asideDicesCount;
+
+                        System.out.println("Throw: " + dices);
+                        System.out.println("That throw had " + countCertainDice(Integer.parseInt(categoryChoice)) + " dice with value " + categoryChoice);
+                        System.out.println("Setting aside " + totalAsideDices + " dice: ");
+
+                        for (int i = 0; i < totalAsideDices; i++) {
+                            System.out.print("[" + categoryChoice + "]");
+                        }
+                        addRepeatedDices(Integer.parseInt(categoryChoice));
+                        diceLeft = dices.size() - asideDicesCount;
+                        int sum = selectedDices.stream()
+                                .mapToInt(e -> e)
+                                .sum();
+                        System.out.println("\n" + player + " made " + totalAsideDices + " with value " + categoryChoice + " and scores " + "for that round " + sum);
+                        updateTableScore(sum);
+                        GameTable.buildTable();
                     }
-
-                    for(int i = 0; i < totalAsideDices; i++){
-                        System.out.print("[" + categoryChoice + "]");
-                    }
-
-                    addRepeatedDices(Integer.parseInt(categoryChoice));
-
-                    diceLeft = dices.size() - asideDicesCount;
-                    System.out.println("\nLast throw of this turn, " + player + " to throw " + diceLeft + " dice");
-                    System.out.println("Throw " + diceLeft + " dice" + ", enter 't' to throw");
-                    choice = sc.next();
-
-                    if (dices.size() > diceLeft) {
-                        List<Integer> sublist = dices.subList(0, 0);
-                        dices = new ArrayList<>(sublist);
-                    }
-
-                    for (int i = 0; i <= diceLeft - 1; i++) {
-                        int randomN = getRandomDice();
-                        dices.add(randomN);
-                    }
-
-                    asideDicesCount = countCertainDice(Integer.parseInt(categoryChoice));
-                    totalAsideDices += asideDicesCount;
-
-                    System.out.println("Throw: " + dices);
-                    System.out.println("That throw had " + countCertainDice(Integer.parseInt(categoryChoice)) + " dice with value " + categoryChoice);
-                    System.out.println("Setting aside " + totalAsideDices + " dice: ");
-
-                    for(int i = 0; i < totalAsideDices; i++){
-                        System.out.print("[" + categoryChoice + "]");
-                    }
-                    addRepeatedDices(Integer.parseInt(categoryChoice));
-                    diceLeft = dices.size() - asideDicesCount;
-                    int sum = selectedDices.stream()
-                            .mapToInt(e -> e)
-                            .sum();
-                    System.out.println("\n" + player + " made " + totalAsideDices + " with value " + categoryChoice + " and scores " + "for that round " + sum);
-                    updateTableScore(sum);
-                    GameTable.buildTable();
                 }
-                else if(choice.equalsIgnoreCase("d")){
+                else if (choice.equalsIgnoreCase("d")) {
                     System.out.println("Selection deferred");
                     System.out.println("\nNext throw of this turn, " + player + " to throw 5 dice");
                     System.out.println("Throw 5 dice, enter 't' to throw ");
@@ -315,7 +927,7 @@ public class Game {
                         System.out.println("Invalid input. PLease input 't' to throw the dices");
                         choice = sc.next();
                     }
-                    if(choice.equalsIgnoreCase("t")){
+                    if (choice.equalsIgnoreCase("t")) {
                         resetLists();
                         System.out.print("Throw: ");
                         for (int i = 0; i < maxDiceCount; i++) {
@@ -327,45 +939,224 @@ public class Game {
                             System.out.print(dices.get(i));
                             System.out.print("]");
                         }
-                        System.out.println("\nThat was the last throw of this turn. Please enter s to select the category: ");
+                        System.out.println("\nThat was the last throw of this turn. Please enter s to select the category or 'f' to forfeit: ");
                         choice = sc.next();
-                        while (!choice.equals("s") ) {
-                            System.out.println("Invalid input. PLease select the category");
+                        while (!choice.equals("s") && !choice.equals("f")) {
+                            System.out.println("Invalid input. PLease select the category or forfeit");
                             choice = sc.next();
                         }
+                        if(choice.equalsIgnoreCase("f")){
+                            System.out.println(player + " lost");
+                            System.exit(0);
+                        }
                         categorySelectionCheck();
-                        if(flag){
-                            while(!categoryCheck(player, categoryChoice) || !dices.contains(Integer.parseInt(categoryChoice))){
-                                System.out.println("Please select different category");
-                                categoryChoice = sc.next().trim();
+                        if (categoryChoice.equalsIgnoreCase("7")) {
+                            List<Integer> selectedNumbers = new ArrayList<>();
+                            Scanner input = new Scanner(System.in);
+                            switchCategories();
+
+                            System.out.println("0.None");
+                            for (int i = 0; i <= 5; i++) {
+                                if (i > 0 && i <= dices.size()) {
+                                    System.out.println(i + "." + "[" + dices.get(i - 1) + "]");
+                                }
+                            }
+                            Map<Integer, Integer> labelToNumberMap = new HashMap<>();
+                            for (int i = 1; i <= dices.size(); i++) {
+                                labelToNumberMap.put(i, dices.get(i - 1));
+                            }
+                            System.out.println("Enter which dice you wish to set aside using the number labels separated by a spase (e.g., 1, 3, 5) or enter 0 for none >");
+                            String seqChoice = input.nextLine();
+                            if (seqChoice.equalsIgnoreCase("0")) {
+                                System.out.println("You have not selected any dice to keep from that throw.");
+                                System.out.println("Your turn has been updated and 5 dices has been thrown");
+                                dices.clear();
+                                for (int i = 0; i < maxDiceCount; i++) {
+                                    int randomN = getRandomDice();
+                                    dices.add(randomN);
+                                }
+                                System.out.println("0.None");
+                                for (int i = 0; i <= 5; i++) {
+                                    if (i > 0 && i <= dices.size()) {
+                                        System.out.println(i + "." + "[" + dices.get(i - 1) + "]");
+                                    }
+                                }
+                                Map<Integer, Integer> lblToNumberMap = new HashMap<>();
+                                for (int i = 1; i <= dices.size(); i++) {
+                                    lblToNumberMap.put(i, dices.get(i - 1));
+                                }
+                                System.out.println("Enter which dice you wish to set aside using the number labels separated by a spase (e.g., 1, 3, 5) or enter 0 for none >");
+                                seqChoice = input.nextLine();
+                                if (seqChoice.equalsIgnoreCase("0")) {
+                                    System.out.println("You have not selected any dice to keep from that throw.");
+                                    System.out.println("Your turn has been updated and 5 dices has been thrown");
+                                    System.out.println("LAST TURN: ");
+                                    dices.clear();
+                                    for (int i = 0; i < maxDiceCount; i++) {
+                                        int randomN = getRandomDice();
+                                        dices.add(randomN);
+                                    }
+                                    System.out.println("0.None");
+                                    for (int i = 0; i <= 5; i++) {
+                                        if (i > 0 && i <= dices.size()) {
+                                            System.out.println(i + "." + "[" + dices.get(i - 1) + "]");
+                                        }
+                                    }
+                                    Map<Integer, Integer> lbl2ToNumberMap = new HashMap<>();
+                                    for (int i = 1; i <= dices.size(); i++) {
+                                        lbl2ToNumberMap.put(i, dices.get(i - 1));
+                                    }
+                                    if (sequenceCheck(selectedNumbers) == true) {
+                                        int sum = 20;
+                                        updateTableScore(sum);
+                                        GameTable.buildTable();
+                                        return;
+                                    } else {
+                                        int sum = 0;
+                                        updateTableScore(sum);
+                                        GameTable.buildTable();
+                                        return;
+                                    }
+                                } else {
+                                    String[] lbArr = seqChoice.split("\\s+");
+                                    for (String labelStr : lbArr) {
+                                        try {
+                                            int label = Integer.parseInt(labelStr);
+                                            if (labelToNumberMap.containsKey(label)) {
+                                                selectedNumbers.add(lblToNumberMap.get(label));
+                                            } else {
+                                                System.out.println("Invalid label: " + label);
+                                            }
+                                        } catch (NumberFormatException e) {
+                                            System.out.println("Invalid input. Please enter valid integer labels separated by space.");
+                                            return;
+                                        }
+                                    }
+                                    System.out.println("You have selected the following dice to keep.");
+                                    for (int i = 0; i < selectedNumbers.size(); i++) {
+                                        System.out.println("[ " + selectedNumbers.get(i) + " ]");
+                                    }
+                                    dices.clear();
+                                    for (int i = 0; i < maxDiceCount; i++) {
+                                        int randomN = getRandomDice();
+                                        dices.add(randomN);
+                                    }
+                                    diceLeft = dices.size() - selectedNumbers.size();
+                                    System.out.println("Last throw of this turn " + player + " to throw " + diceLeft + " dice.");
+                                    System.out.println("Throw " + diceLeft + " dice, enter 't' to throw ");
+                                    System.out.println(selectedNumbers);
+                                    choice = sc.next().trim();
+                                    while (!choice.equalsIgnoreCase("t")) {
+                                        System.out.println("Invalid input. PLease input 't'");
+                                        choice = sc.next();
+                                    }
+                                    if (choice.equalsIgnoreCase("t")) {
+                                        if (dices.size() > diceLeft) {
+                                            List<Integer> sublist = dices.subList(0, 0);
+                                            dices = new ArrayList<>(sublist);
+                                        }
+                                        for (int i = 0; i <= diceLeft - 1; i++) {
+                                            int randomN = getRandomDice();
+                                            dices.add(randomN);
+                                        }
+                                        System.out.println("Throw: " + dices);
+                                        for (int i = 0; i < selectedNumbers.size(); i++) {
+                                            System.out.println("[ " + selectedNumbers.get(i) + " ]");
+                                        }
+                                        for (int i = 0; i < dices.size(); i++) {
+                                            selectedNumbers.add(dices.get(i));
+                                        }
+                                        if (sequenceCheck(selectedNumbers) == true) {
+                                            int sum = 20;
+                                            updateTableScore(sum);
+                                            GameTable.buildTable();
+                                            return;
+                                        } else {
+                                            int sum = 0;
+                                            updateTableScore(sum);
+                                            GameTable.buildTable();
+                                            return;
+                                        }
+                                    }
+                                }
+                            }
+                            else {
+                                String[] labelArr = seqChoice.split("\\s+");
+                                for (String labelStr : labelArr) {
+                                    try {
+                                        int label = Integer.parseInt(labelStr);
+                                        if (labelToNumberMap.containsKey(label)) {
+                                            selectedNumbers.add(labelToNumberMap.get(label));
+                                        } else {
+                                            System.out.println("Invalid label: " + label);
+                                        }
+                                    } catch (NumberFormatException e) {
+                                        System.out.println("Invalid input. Please enter valid integer labels separated by space.");
+                                        return;
+                                    }
+                                }
+                                System.out.println("You have selected the following dice to keep.");
+
+                                for (int i = 0; i < selectedNumbers.size(); i++) {
+                                    System.out.println("[ " + selectedNumbers.get(i) + " ]");
+                                }
+                                if (selectedNumbers.size() == 5) {
+                                    sequenceCheck(selectedNumbers);
+                                    int sum = 20;
+                                    updateTableScore(sum);
+                                    GameTable.buildTable();
+                                    return;
+                                }
+                                if (sequenceCheck(selectedNumbers) == true) {
+                                    int sum = 20;
+                                    updateTableScore(sum);
+                                    GameTable.buildTable();
+                                    return;
+                                } else {
+                                    int sum = 0;
+                                    updateTableScore(sum);
+                                    GameTable.buildTable();
+                                    return;
+                                }
                             }
                         }
-                        correspondingStr = "";
+                        else{
+                            if (flag) {
+                                while (!categoryCheck(player, categoryChoice) || !dices.contains(Integer.parseInt(categoryChoice))) {
+                                    System.out.println("Please select different category");
+                                    categoryChoice = sc.next().trim();
+                                }
+                            }
+                            correspondingStr = "";
 
-                        switchCategories();
-                        printChosenCategory();
+                            switchCategories();
+                            printChosenCategory();
 
-                        asideDicesCount = countCertainDice(Integer.parseInt(categoryChoice));
-                        if (asideDicesCount >= 0) {
-                            System.out.println("That throw had " + asideDicesCount + " dice with value " + categoryChoice);
-                            System.out.println("Setting aside " + asideDicesCount + " dice: ");
-                            totalAsideDices += asideDicesCount;
+                            asideDicesCount = countCertainDice(Integer.parseInt(categoryChoice));
+                            if (asideDicesCount >= 0) {
+                                System.out.println("That throw had " + asideDicesCount + " dice with value " + categoryChoice);
+                                System.out.println("Setting aside " + asideDicesCount + " dice: ");
+                                totalAsideDices += asideDicesCount;
+                            }
+
+                            for (int i = 0; i < totalAsideDices; i++) {
+                                System.out.print("[" + categoryChoice + "]");
+                            }
+                            addRepeatedDices(Integer.parseInt(categoryChoice));
+                            int sum = selectedDices.stream()
+                                    .mapToInt(e -> e)
+                                    .sum();
+                            currentScore = sum;
+                            System.out.println("\n" + player + " made " + totalAsideDices + " with value " + categoryChoice + " and scores " + "for that round " + sum);
+                            updateTableScore(sum);
+                            GameTable.buildTable();
                         }
-
-                        for(int i = 0; i < totalAsideDices; i++){
-                            System.out.print("[" + categoryChoice + "]");
-                        }
-
-                        addRepeatedDices(Integer.parseInt(categoryChoice));
-                        int sum = selectedDices.stream()
-                                .mapToInt(e -> e)
-                                .sum();
-                        currentScore = sum;
-                        System.out.println("\n" + player + " made " + totalAsideDices + " with value " + categoryChoice + " and scores " + "for that round " + sum);
-                        updateTableScore(sum);
-                        GameTable.buildTable();
                     }
                 }
+            }
+            else if(choice.equalsIgnoreCase("f")){
+                System.out.println(player+" lost");
+                System.exit(0);
             }
         }
     }
@@ -383,7 +1174,7 @@ public class Game {
         } else if (categoryChoice.equalsIgnoreCase("6")) {
             System.out.println(correspondingStr + " has been selected");
         } else if (categoryChoice.equalsIgnoreCase("7")) {
-            System.out.println(correspondingStr + " has been selected");
+            System.out.println("Sequence 20 has been selected");
         }
     }
     public static void switchCategories(){
@@ -411,23 +1202,6 @@ public class Game {
                 break;
         }
     }
-    public static void categorySelectionCheck(){
-        int cat;
-        do{
-            System.out.println("Select category to play.");
-            System.out.println("Ones (1) Twos(2) Threes(3) Fours(4) Fives(5) Sixes(6) or Sequences(7)");
-            while(!sc.hasNextInt()){
-                System.out.println("Invalid input. Please enter a number (1-7): ");
-                sc.next();
-            }
-            cat = sc.nextInt();
-            if(cat < 1 || cat > 7){
-                System.out.println("Invalid input. Please enter a number (1-7): ");
-            }
-            categoryChoice = String.valueOf(cat);
-        }
-        while (Integer.parseInt(categoryChoice) < 1 || Integer.parseInt(categoryChoice) > 7);
-    }
     public static void updateTableScore(int sum){
         switch (GameManager.playerTurn){
             case "Player1":
@@ -451,7 +1225,7 @@ public class Game {
                     case "6":
                         GameTable.pOneSixes = sum;
                         break;
-                    case "Sequences":
+                    case "7":
                         GameTable.pOneSequences = sum;
                         break;
                 }
@@ -477,7 +1251,7 @@ public class Game {
                     case "6":
                         GameTable.pTwoSixes = sum;
                         break;
-                    case "Sequences":
+                    case "7":
                         GameTable.pTwoSequences = sum;
                         break;
                 }
